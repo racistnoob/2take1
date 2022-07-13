@@ -307,7 +307,7 @@ menu.create_thread(function()
 
         local veh = player.get_player_vehicle(ppid())
         if not network.has_control_of_entity(veh) then
-            req_control(veh)
+            reqCtrl(veh)
         end
         vehicle.set_vehicle_custom_pearlescent_colour(veh, RGBAToInt(cc.colors.pearlescent[3], cc.colors.pearlescent[2], cc.colors.pearlescent[1]))
         menu.notify("Changed pearlescent colour to:\nRGB: "..
@@ -360,7 +360,7 @@ menu.create_thread(function()
         end
         local veh = player.get_player_vehicle(ppid())
         if not network.has_control_of_entity(veh) then
-            req_control(veh)
+            reqCtrl(veh)
         end
         vehicle.set_vehicle_custom_wheel_colour(veh, RGBAToInt(cc.colors.wheel[3], cc.colors.wheel[2], cc.colors.wheel[1]))
         menu.notify("Changed wheel colour to:\nRGB: "..
@@ -390,6 +390,9 @@ menu.create_thread(function()
     -- Dirt
     cc.features.dirtlevel = menu.add_feature("Dirt Level", "autoaction_value_i", cc.features.dirt, function(f)
         local veh = player.get_player_vehicle(player.player_id())
+        if not network.has_control_of_entity(veh) then
+            reqCtrl(veh)
+        end
         while f.value do
             system.wait(0)
             native.call(0x79D3B596FE44EE8B, veh, f.value+0.0)
@@ -476,7 +479,7 @@ menu.create_thread(function()
         end
         local veh = player.get_player_vehicle(ppid())
         if not network.has_control_of_entity(veh) then
-            req_control(veh)
+            reqCtrl(veh)
         end
         vehicle.set_vehicle_neon_lights_color(veh, RGBAToInt(cc.colors.neon[3], cc.colors.neon[2], cc.colors.neon[1]))
         menu.notify("Changed neon colour to:\nRGB: "..
@@ -503,6 +506,9 @@ menu.create_thread(function()
 
     cc.features.rgbxenons = menu.add_feature("Rainbow Xenons", "toggle", cc.features.xenons, function(f)
         local veh = player.get_player_vehicle(player.player_id())
+        if not network.has_control_of_entity(veh) then
+            reqCtrl(veh)
+        end
         vehicle.toggle_vehicle_mod(veh, 22, f.on)
         while f.on do
             for i=1,12 do
@@ -521,6 +527,9 @@ menu.create_thread(function()
 
     menu.add_feature("Xenon Lights", "value_str", cc.features.xenons, function(f)
         local veh = player.get_player_vehicle(player.player_id())
+        if not network.has_control_of_entity(veh) then
+            reqCtrl(veh)
+        end
         if f.on and not cc.features.rgbxenons.on then
             vehicle.toggle_vehicle_mod(veh, 22, f.on)
             vehicle.set_vehicle_headlight_color(veh, f.value)
@@ -529,6 +538,19 @@ menu.create_thread(function()
             vehicle.toggle_vehicle_mod(veh, 22, false)
         end
     end):set_str_data({"Xenon","White","Blue","Elec Blue","Mint Green","Lime Green","Yellow","Gold","Orange","Red","Pony Pink","Hot Pink","Purple","Blacklight"})
+
+    menu.add_feature("Render scorched", "toggle", cc.features.misc, function(f)
+        local veh = player.get_player_vehicle(player.player_id())
+        if not network.has_control_of_entity(veh) then
+            reqCtrl(veh)
+        end
+        if f.on then
+            native.call(0x730F5F8D3F0F2050, veh, true)
+        end
+        if not f.on then
+            native.call(0x730F5F8D3F0F2050, veh, false)
+        end
+    end)
 end,nil)
 
 ccloaded = true
