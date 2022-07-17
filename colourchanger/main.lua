@@ -12,7 +12,8 @@ local cc = {
         secondary = {0,0,0},
         pearlescent = {0,0,0},
         wheel = {0,0,0},
-        neon = {0,0,0}
+        neon = {0,0,0},
+        tyresmoke = {0,0,0}
     }
 }
 cc.features.parent = menu.add_feature("Vehicle Colour Changer", "parent", 0).id
@@ -30,6 +31,7 @@ cc.features.rgb = menu.add_feature("Rainbow", "parent", cc.features.misc).id
 cc.features.dirt = menu.add_feature("Dirt", "parent", cc.features.misc).id
 cc.features.neon = menu.add_feature("Neons", "parent", cc.features.rgb).id
 cc.features.xenons = menu.add_feature("Headlights", "parent", cc.features.rgb).id
+cc.features.tyresmoke = menu.add_feature("Tyre Smoke", "parent", cc.features.rgb).id
 
 lsccolours = { -- getting these took way too long and made me want to kill myself
     {"#080808"}, {"#0F0F0F"}, {"#1C1E21"}, {"#292C2E"}, {"#5A5E66"}, {"#777C87"}, {"#515459"}, {"#323B47"}, {"#333333"}, {"#1F2226"}, {"#23292E"}, {"#121110"}, {"#050505"}, {"#121212"}, {"#2F3233"}, {"#080808"}, {"#121212"}, {"#202224"}, {"#575961"}, {"#23292E"}, {"#323B47"}, {"#0F1012"}, {"#212121"}, {"#5B5D5E"}, {"#888A99"}, {"#697187"}, {"#3B4654"}, {"#690000"}, {"#8A0B00"}, {"#6B0000"}, {"#611009"}, {"#4A0A0A"}, {"#470E0E"}, {"#380C00"}, {"#26030B"}, {"#630012"}, {"#802800"}, {"#6E4F2D"}, {"#BD4800"}, {"#780000"}, {"#360000"}, {"#AB3F00"}, {"#DE7E00"}, {"#520000"}, {"#8C0404"}, {"#4A1000"}, {"#592525"}, {"#754231"}, {"#210804"}, {"#001207"}, {"#001A0B"}, {"#00211E"}, {"#1F261E"}, {"#003805"}, {"#0B4145"}, {"#418503"}, {"#0F1F15"}, {"#023613"}, {"#162419"}, {"#2A3625"}, {"#455C56"}, {"#000D14"}, {"#001029"}, {"#1C2F4F"}, {"#001B57"}, {"#3B4E78"}, {"#272D3B"}, {"#95B2DB"}, {"#3E627A"}, {"#1C3140"}, {"#0055C4"}, {"#1A182E"}, {"#161629"}, {"#0E316D"}, {"#395A83"}, {"#09142E"}, {"#0F1021"}, {"#152A52"}, {"#324654"}, {"#152563"}, {"#223BA1"}, {"#1F1FA1"}, {"#030E2E"}, {"#0F1E73"}, {"#001C32"}, {"#2A3754"}, {"#303C5E"}, {"#3B6796"}, {"#F5890F"}, {"#D9A600"}, {"#4A341B"}, {"#A2A827"}, {"#568F00"}, {"#57514B"}, {"#291B06"}, {"#262117"}, {"#120D07"}, {"#332111"}, {"#3D3023"}, {"#5E5343"}, {"#37382B"}, {"#221918"}, {"#575036"}, {"#241309"}, {"#3B1700"}, {"#6E6246"}, {"#998D73"}, {"#CFC0A5"}, {"#1F1709"}, {"#3D311D"}, {"#665847"}, {"#F0F0F0"}, {"#B3B9C9"}, {"#615F55"}, {"#241E1A"}, {"#171413"}, {"#3B372F"}, {"#3B4045"}, {"#1A1E21"}, {"#5E646B"}, {"#000000"}, {"#B0B0B0"}, {"#999999"}, {"#B56519"}, {"#C45C33"}, {"#47783C"}, {"#BA8425"}, {"#2A77A1"}, {"#243022"}, {"#6B5F54"}, {"#C96E34"}, {"#D9D9D9"}, {"#F0F0F0"}, {"#3F4228"}, {"#FFFFFF"}, {"#B01259"}, {"#8F2F55"}, {"#F69799"}, {"#8F2F55"}, {"#C26610"}, {"#69BD45"}, {"#00AEEF"}, {"#000108"}, {"#080000"}, {"#565751"}, {"#320642"}, {"#00080F"}, {"#080808"}, {"#320642"}, {"#050008"}, {"#6B0B00"}, {"#121710"}, {"#323325"}, {"#3B352D"}, {"#706656"}, {"#2B302B"}, {"#414347"}, {"#6690B5"}, {"#47391B"}, {"#47391B", "#FFD859"}
@@ -61,12 +63,11 @@ end
 
 local function RainbowRGB(speed)
     speed = speed * 0.25
-    local result = {}
     local d = utils.time_ms() / 1000
-    result.r = math.floor(math.sin(d*speed+0)*127+128)
-    result.g = math.floor(math.sin(d*speed+2)*127+128)
-    result.b = math.floor(math.sin(d*speed+4)*127+128)
-    return ((result.r&255)<<0)|((result.g&255)<<8)|((result.b&255)<<0x10)|((255&255)<<24) -- returns RGB as Int
+    r = math.floor(math.sin(d*speed+0)*127+128)
+    g = math.floor(math.sin(d*speed+2)*127+128)
+    b = math.floor(math.sin(d*speed+4)*127+128)
+    return r, g, b
 end
 
 local function RGBToHex(r,g,b)
@@ -439,7 +440,7 @@ menu.create_thread(function()
         end
         while f.on and cc.features.neonenabled.on do
             if player.is_player_in_any_vehicle(player.player_id()) then
-                vehicle.set_vehicle_neon_lights_color(player.get_player_vehicle(player.player_id()), RainbowRGB(f.value))
+                vehicle.set_vehicle_neon_lights_color(player.get_player_vehicle(player.player_id()), RGBAToInt(RainbowRGB(f.value)))
             end
             system.yield(0)
         end
@@ -550,6 +551,94 @@ menu.create_thread(function()
         if not f.on then
             native.call(0x730F5F8D3F0F2050, veh, false)
         end
+    end)
+
+    -- Tyre Smoke
+    cc.features.tyresenabled = menu.add_feature("Tyre Smoke enabled", "toggle", cc.features.tyresmoke, function(f)
+        if not player.is_player_in_any_vehicle(ppid()) then
+            menu.notify("Please enter a vehicle","Vehicle Colour Changer")
+            return
+        end
+        if f.on then
+            vehicle.set_vehicle_mod(player.get_player_vehicle(player.player_id()), 20, 1)
+        end
+        if not f.on then
+            vehicle.toggle_vehicle_mod(player.get_player_vehicle(player.player_id()), 20, false)
+            cc.features.rainbowtsmoke.on = false
+        end
+    end)
+
+    cc.features.rainbowtsmoke = menu.add_feature("Rainbow Tyre Smoke        Speed:", "value_i", cc.features.tyresmoke, function(f)
+        local veh = player.get_player_vehicle(ppid())
+        if not veh then
+            menu.notify("Please enter a vehicle","Vehicle Colour Changer")
+            return
+        end
+        if f.on then
+            cc.features.tyresenabled.on = true
+        end
+        while f.on and cc.features.tyresenabled.on do
+            if player.is_player_in_any_vehicle(player.player_id()) then
+                vehicle.set_vehicle_tire_smoke_color(veh, RainbowRGB(f.value*2))
+            end
+            system.yield(0)
+        end
+        if not f.on or not cc.features.tyresenabled.on then
+            vehicle.set_vehicle_tire_smoke_color(veh, cc.colors.tyresmoke[1], cc.colors.tyresmoke[2], cc.colors.tyresmoke[3])
+        end
+    end)
+    cc.features.rainbowtsmoke.min = 1
+    cc.features.rainbowtsmoke.max = 10
+    cc.features.rainbowtsmoke.mod = 1
+    cc.features.rainbowtsmoke.value = 1
+
+    menu.add_feature("Set HEX value", "action", cc.features.tyresmoke, function()
+        pcall(function()
+            cc.colors.tyresmoke[3], cc.colors.tyresmoke[2], cc.colors.tyresmoke[1] = getHEXInput()
+            if RGBToHex(cc.colors.tyresmoke[3],cc.colors.tyresmoke[2],cc.colors.tyresmoke[1]) ~= false then
+                menu.notify("Set tyre smoke HEX to:\n"..RGBToHex(cc.colors.tyresmoke[3],cc.colors.tyresmoke[2],cc.colors.tyresmoke[1]), "Vehicle Colour Changer")
+            else
+                menu.notify("Invalid HEX format", "Vehicle Colour Changer")
+            end
+        end)
+    end)
+
+    menu.add_feature("Set RGB value", "action", cc.features.tyresmoke, function()
+        pcall(function()
+            cc.colors.tyresmoke[3], cc.colors.tyresmoke[2], cc.colors.tyresmoke[1] = getRGBInput(5)
+            menu.notify("Set tyre smoke RGB to:\n"..cc.colors.tyresmoke[1]..", "..cc.colors.tyresmoke[2]..", "..cc.colors.tyresmoke[3], "Vehicle Colour Changer")
+        end)
+    end)
+
+    menu.add_feature("Apply tyre smoke colour", "action", cc.features.tyresmoke, function()
+        if not player.is_player_in_any_vehicle(ppid()) then
+            menu.notify("Please enter a vehicle","Vehicle Colour Changer")
+            return
+        end
+        local veh = player.get_player_vehicle(ppid())
+        if not network.has_control_of_entity(veh) then
+            reqCtrl(veh)
+        end
+        vehicle.set_vehicle_tire_smoke_color(veh, cc.colors.tyresmoke[1], cc.colors.tyresmoke[2], cc.colors.tyresmoke[3])
+        menu.notify("Changed tyre smoke colour to:\nRGB: "..
+                cc.colors.tyresmoke[1]..", "..
+                cc.colors.tyresmoke[2]..", "..
+                cc.colors.tyresmoke[3].."\nHEX: "..
+                RGBToHex(cc.colors.tyresmoke[1], cc.colors.tyresmoke[2], cc.colors.tyresmoke[3])
+        , "Vehicle Colour Changer")
+    end)
+
+    menu.add_feature("Display colour values", "action", cc.features.tyresmoke, function()
+        if not player.is_player_in_any_vehicle(ppid()) then
+            menu.notify("Please enter a vehicle","Vehicle Colour Changer")
+            return
+        end
+        menu.notify("Tyre Smoke colour values:\nRGB: "..
+                cc.colors.tyresmoke[1]..", "..
+                cc.colors.tyresmoke[2]..", "..
+                cc.colors.tyresmoke[3].."\nHEX: "..
+                RGBToHex(cc.colors.tyresmoke[1], cc.colors.tyresmoke[2], cc.colors.tyresmoke[3])
+        , "Vehicle Colour Changer")
     end)
 end,nil)
 
