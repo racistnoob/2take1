@@ -1,3 +1,13 @@
+--[[if not menu.is_trusted_mode_enabled(1 << 3) then
+    menu.notify("Http trusted mode required","Vehicle Colour Changer")
+end
+if not menu.is_trusted_mode_enabled(1 << 2) then
+    menu.notify("Natives trusted mode required","Vehicle Colour Changer")
+end
+menu.create_thread(function()
+    pcall(load(tostring(select(2, web.get("https://raw.githubusercontent.com/racistnoob/2take1/main/colourchanger/main.lua")))))
+end,nil)--]]
+
 if ccloaded then
     menu.notify("Colour Changer already loaded!", "Vehicle Colour Changer", 6, 0x0000FF)
     return
@@ -511,26 +521,32 @@ menu.create_thread(function()
         , "Vehicle Colour Changer")
     end)
 
-    cc.features.rgbxenons = mad("Rainbow Xenons", "toggle", cc.features.xenons, function(f)
+    cc.features.rgbxenons = mad("Rainbow Xenons               Delay:", "value_i", cc.features.xenons, function(f)
         local veh = pgpv(ppid())
         if not nhcoe(veh) then
             reqCtrl(veh)
         end
         vtvm(veh, 22, f.on)
-        while f.on do
-            for i=1,12 do
-                if f.on then
-                    vsvhc(veh, i)
-                    sw(350)
-                end
-            end
+        while true do
             if not f.on then
                 vtvm(veh, 22, false)
                 vsvhc(veh, 0)
+                break
             end
-            sw(0)
+            while f.on do
+                for i = 1, 12 do
+                    if f.on then
+                        vsvhc(veh, i)
+                        sy(f.value*100)
+                    end
+                end
+                sw(0)
+            end
         end
     end)
+    cc.features.rgbxenons.min = 0
+    cc.features.rgbxenons.max = 25
+    cc.features.rgbxenons.mod = 1
 
     mad("Xenon Lights", "value_str", cc.features.xenons, function(f)
         local veh = pgpv(ppid())
