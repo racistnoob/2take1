@@ -1,13 +1,3 @@
---[[if not menu.is_trusted_mode_enabled(1 << 3) then
-    menu.notify("Http trusted mode required","Vehicle Colour Changer")
-end
-if not menu.is_trusted_mode_enabled(1 << 2) then
-    menu.notify("Natives trusted mode required","Vehicle Colour Changer")
-end
-menu.create_thread(function()
-    pcall(load(tostring(select(2, web.get("https://raw.githubusercontent.com/racistnoob/2take1/main/colourchanger/main.lua")))))
-end,nil)--]]
-
 if ccloaded then
     menu.notify("Colour Changer already loaded!", "Vehicle Colour Changer", 6, 0x0000FF)
     return
