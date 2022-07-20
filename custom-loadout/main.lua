@@ -616,3 +616,4 @@ cl.autoload = menu.add_feature("Auto Load", "toggle", cl.parent, function(f)
         end
     end
 end)
+cl.autoload.on = true
