@@ -405,6 +405,10 @@ cl.attachments_table = {
     [gghk("COMPONENT_HEAVYRIFLE_CLIP_02")] = "Extended Clip",
     [gghk("COMPONENT_HEAVYRIFLE_SIGHT_01")] = "Iron Sights",
     [gghk("COMPONENT_HEAVYRIFLE_CAMO1")] = "Digital Camo",
+    [gghk("COMPONENT_AT_AR_FLSH_REH")] = "Flashlight",
+    [gghk("COMPONENT_TACTICALRIFLE_CLIP_02")] = "Extended Clip",
+    [gghk("COMPONENT_AT_AR_SUPP_02")] = "Suppressor",
+    [gghk("COMPONENT_AT_AR_AFGRIP")] = "Grip",
 }
 cl.weapons_table = {
     MELEE = {
@@ -447,7 +451,8 @@ cl.weapons_table = {
         Ceramic_Pistol = 727643628,
         Navy_Revolver = 2441047180,
         Perico_Pistol = 1470379660,
-        Up_n_Atomizer = 2939590305
+        Up_n_Atomizer = 2939590305,
+        Metal_Detector = 3684886537
     },
     SMG = {
         Micro_SMG = 324215364,
@@ -483,7 +488,8 @@ cl.weapons_table = {
         Bullpup_Rifle_MK_II = 2228681469,
         Compact_Rifle = 1649403952,
         Military_Rifle = 2636060646,
-        Heavy_Rifle = 3347935668
+        Heavy_Rifle = 3347935668,
+        Service_Carbine = 3520460075
     },
     MACHINE_GUNS = {
         MG = 2634544996,
@@ -496,7 +502,8 @@ cl.weapons_table = {
         Heavy_Sniper = 205991906,
         Heavy_Sniper_MK_II = 177293209,
         Marksman_Rifle = 3342088282,
-        Marksman_Rifle_MK_II = 1785463520
+        Marksman_Rifle_MK_II = 1785463520,
+        Precision_Rifle = 1853742572
     },
     HEAVY_WEAPONS = {
         RPG = 2982836145, -- or 1752584910 ???? dafuq
