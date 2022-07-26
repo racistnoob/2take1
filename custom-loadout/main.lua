@@ -607,10 +607,10 @@ local sw = system.yield
 cl.autoload = menu.add_feature("Auto Load", "toggle", cl.parent, function(f)
     while f.on do
         sw()
-        if sggi(1574988) ~= 66 then
+        if sggi(1574991) ~= 66 then
             repeat
                 sw()
-            until sggi(1574988) == 66
+            until sggi(1574991) == 66
             sw(1000)
             cl.load_loadout:toggle()
         end
