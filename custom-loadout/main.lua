@@ -593,15 +593,6 @@ cl.load_loadout = menu.add_feature("Load Loadout", "action", cl.parent, function
     end
 end)
 
-local original = system.yield -- fix by kektram
-system.yield = function(ms)
-    ms = ms and ms >= 0 and ms or 0
-    local time = utils.time_ms() + ms
-    repeat
-        original(0)
-    until utils.time_ms() > time
-end
-
 local sggi = script.get_global_i
 local sw = system.yield
 cl.autoload = menu.add_feature("Auto Load", "toggle", cl.parent, function(f)
