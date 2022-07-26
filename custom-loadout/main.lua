@@ -1,5 +1,7 @@
 local cl = {}
 local gghk = gameplay.get_hash_key
+local sggi = script.get_global_i
+local sw = system.yield
 cl.parent = menu.add_feature("Custom Loadout", "parent", 0).id
 cl.saveddir = utils.get_appdata_path("PopstarDevs\\2Take1Menu\\scripts\\loadout_data\\", "")
 cl.attachments_table = {
@@ -589,7 +591,7 @@ cl.load_loadout = menu.add_feature("Load Loadout", "action", cl.parent, function
             for n, a_hash in pairs(attach) do
                 if n ~= "tint" then
                     weapon.give_weapon_component_to_ped(cl.pped, w_hash, a_hash)
-                    system.yield(10)
+                    sw(10)
                 end
             end
             weapon.set_ped_weapon_tint_index(cl.pped, w_hash, attach["tint"])
@@ -600,8 +602,6 @@ cl.load_loadout = menu.add_feature("Load Loadout", "action", cl.parent, function
     end
 end)
 
-local sggi = script.get_global_i
-local sw = system.yield
 cl.autoload = menu.add_feature("Auto Load", "toggle", cl.parent, function(f)
     while f.on do
         sw()
