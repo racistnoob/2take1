@@ -278,6 +278,7 @@ menu.create_thread(function()
                     print(savedColours[i])
                     io.remove(cc.savedir .. "\\" .. savedColours[i])
                     refreshColoursFunc()
+                    return
                 end
     
                 if not pispiav(ppid()) then
