@@ -16,6 +16,7 @@ local mad = menu.add_feature
 local nc = native.call
 local vtvm = vehicle.toggle_vehicle_mod
 local vsvhc = vehicle.set_vehicle_headlight_color
+local svnlc = vehicle.set_vehicle_neon_lights_color
 local cc = {
     features = {},
     colors = {
@@ -25,7 +26,8 @@ local cc = {
         wheel = {0,0,0},
         neon = {0,0,0},
         tyresmoke = {255,255,255}
-    }
+    },
+    savedir = utils.get_appdata_path("PopstarDevs\\2Take1Menu\\scripts\\Vehicle Colour Changer\\", "")
 }
 cc.features.parent = mad("Vehicle Colour Changer", "parent", 0).id
 cc.features.colourfix = mad("GTA Colour Correction", "toggle", cc.features.parent, function(f)
@@ -183,11 +185,11 @@ mad("Paint type: ", "autoaction_value_str", cc.features.parent, function(f)
         cc.colors.primary[3], cc.colors.primary[2], cc.colors.primary[1] = getVehRGB(veh,1)
         cc.colors.secondary[3], cc.colors.secondary[2], cc.colors.secondary[1] = getVehRGB(veh,2)
         local ptype = 0
-        if f.value == 2 then
+        if f.value == 1 then
             ptype = 12
-        elseif f.value == 3 then
+        elseif f.value == 2 then
             ptype = 118
-        elseif f.value == 4 then
+        elseif f.value == 3 then
             ptype = 120
         end
         vehicle.set_vehicle_colors(veh, ptype, ptype)
@@ -201,6 +203,7 @@ cc.features.secondary = mad("Secondary", "parent", cc.features.parent).id
 cc.features.pearlescent = mad("Pearlescent", "parent", cc.features.parent).id
 cc.features.wheel = mad("Wheel", "parent", cc.features.parent).id
 cc.features.misc = mad("Miscellaneous", "parent", cc.features.parent).id
+cc.features.saved = mad("Saved Colours", "parent", cc.features.parent)
 cc.features.rgb = mad("Rainbow Options", "parent", cc.features.misc).id
 cc.features.dirt = mad("Dirt Options", "parent", cc.features.misc).id
 cc.features.neon = mad("Neons", "parent", cc.features.rgb).id
@@ -208,6 +211,101 @@ cc.features.xenons = mad("Headlights", "parent", cc.features.rgb).id
 cc.features.tyresmoke = mad("Tyre Smoke", "parent", cc.features.rgb).id
 
 menu.create_thread(function()
+
+    local function refreshColoursFunc()
+        local function saveColour(func, filename)
+            local r, s
+            if func ~= nil then
+                repeat
+                    r,s = input.get("Enter colour name", "", 100, 0)
+                    if r == 2 then
+                        mn("Cancelled", "Vehicle Colour Changer")
+                        return false
+                    end
+                    sw(0)
+                until r == 0
+            else
+                s = filename
+            end
+            
+            
+            if not utils.dir_exists(cc.savedir) then
+                utils.make_dir(cc.savedir)
+            end
+            local file = io.open(cc.savedir .. "\\".. s.. ".lua", "wb")
+            local charS,charE = "   ","\n"
+            file:write("return {" .. charE)
+            
+            local colortypes = 0
+            for i=1,5 do
+                colortypes = colortypes+1
+                file:write("["..i.."] = {")
+                local color3, color2, color1 = getVehRGB(pgpv(ppid()),i)
+                file:write(color1..", ".. color2..", "..color3.."}")
+                if colortypes ~= 5 then
+                    file:write(",")
+                end
+            end
+
+            file:write("}")
+            file:close()
+            mn("Saved colours " .. s, "Vehicle Colour Changer")
+            refreshColoursFunc()
+        end
+
+        local savecolours = menu.add_feature("Save current colours", "action", cc.features.saved.id, saveColour)
+
+        local refreshcolours = menu.add_feature("Refresh saved colours", "action", cc.features.saved.id, refreshColoursFunc)
+
+        for _, child in pairs(cc.features.saved.children) do
+            if child.id ~= savecolours.id and child.id ~= refreshcolours.id then
+                menu.delete_feature(child.id)
+            end
+        end
+    
+        local savedColours = {}
+        savedColours = utils.get_all_files_in_directory(cc.savedir, "lua")
+        for i=1, #savedColours do
+            menu.add_feature(savedColours[i]:gsub("%.lua", ""), "action_value_str", cc.features.saved.id, function(f)
+                local colourTable = dofile(cc.savedir .. "\\"..savedColours[i])
+                cc.colors.primary = colourTable[1]
+                cc.colors.secondary = colourTable[2]
+                cc.colors.pearlescent = colourTable[3]
+                cc.colors.wheel = colourTable[4]
+                cc.colors.neon = colourTable[5]
+    
+                if f.value == 2 then
+                    print(savedColours[i])
+                    io.remove(cc.savedir .. "\\" .. savedColours[i])
+                    refreshColoursFunc()
+                end
+    
+                if not pispiav(ppid()) then
+                    mn("Please enter a vehicle","Vehicle Colour Changer")
+                    return
+                end
+    
+                local veh = pgpv(ppid())
+                if not nhcoe(veh) then
+                    reqCtrl(veh)
+                end
+
+                if f.value == 1 then
+                    saveColour(nil, savedColours[i]:gsub("%.lua", ""))
+                end
+    
+                if f.value == 0 then
+                    vehicle.set_vehicle_custom_primary_colour(veh, RGBAToInt(cc.colors.primary[3], cc.colors.primary[2], cc.colors.primary[1]))
+                    vehicle.set_vehicle_custom_secondary_colour(veh, RGBAToInt(cc.colors.secondary[3], cc.colors.secondary[2], cc.colors.secondary[1]))
+                    vehicle.set_vehicle_custom_pearlescent_colour(veh, RGBAToInt(cc.colors.pearlescent[3], cc.colors.pearlescent[2], cc.colors.pearlescent[1]))
+                    vehicle.set_vehicle_custom_wheel_colour(veh, RGBAToInt(cc.colors.wheel[3], cc.colors.wheel[2], cc.colors.wheel[1]))
+                    svnlc(veh, RGBAToInt(cc.colors.neon[3], cc.colors.neon[2], cc.colors.neon[1]))
+                end
+            end):set_str_data({"Apply","Overwrite","Delete"})
+        end
+    end
+    refreshColoursFunc()
+
     -- Primary
 
     mad("Set HEX value", "action", cc.features.primary, function()
@@ -467,7 +565,6 @@ menu.create_thread(function()
         end
     end)
 
-    local svnlc = vehicle.set_vehicle_neon_lights_color
     cc.features.rainbowneon = mad("Rainbow Neons                Speed:", "value_i", cc.features.neon, function(f)
         if not pispiav(ppid()) then
             mn("Please enter a vehicle","Vehicle Colour Changer")
