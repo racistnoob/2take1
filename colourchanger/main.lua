@@ -105,7 +105,7 @@ local function getVehRGB(veh,type)
 end
 
 local function getRGBInput(type)
-    colorlist = {
+    local colorlist = {
         cc.colors.primary,
         cc.colors.secondary,
         cc.colors.pearlescent,
