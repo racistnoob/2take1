@@ -828,7 +828,7 @@ menu.create_thread(function()
         end
 
         if f.on then
-            vehicle.set_vehicle_mod(veh, 20, true)
+            vehicle.set_vehicle_mod(veh, 20, false)
         end
         if not f.on then
             vehicle.toggle_vehicle_mod(veh, 20, false)
