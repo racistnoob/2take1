@@ -20,7 +20,6 @@ menu.add_feature("translate hack", "toggle", 0, function(f)
             if player.is_player_valid(event.player) then
                 if #event.body > 4 and event.player ~= player.player_id() then
                     local pid = event.player
-                    statusCode, response = web.get("http://ip-api.com/json/"..pIp.."?fields=49154")
                     translatedText = Translate(event.body)
                     if translatedText ~= nil then
                         menu.notify(player.get_player_name(pid)..": "..translatedText, "Google Translate")
